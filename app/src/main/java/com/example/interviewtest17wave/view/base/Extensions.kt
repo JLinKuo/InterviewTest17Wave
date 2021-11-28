@@ -12,6 +12,7 @@ fun Fragment.handleApiError(
     failure: Resource.Failure
 ) {
     val mainActivity = (activity as MainActivity)
+    mainActivity.dismissProgressBar()
 
     when (failure.errorCode) {
         400, 404, 500 -> {
