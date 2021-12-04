@@ -33,5 +33,7 @@ class SearchUserItemAdapter: RecyclerView.Adapter<SearchUserItemAdapter.ViewHold
         this.notifyItemRangeChanged(start, listUsers.size)
     }
 
+    fun getUserList() = listUsers
+
     inner class ViewHolder(val binding: ViewListUserItemBinding): RecyclerView.ViewHolder(binding.root)
 }

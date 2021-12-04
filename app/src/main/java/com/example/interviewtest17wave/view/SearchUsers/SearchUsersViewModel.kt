@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 
 class SearchUsersViewModel: BaseViewModel() {
     private val repository by lazy { SearchUsersRepository() }
+    var nextPage = 1    // 預設第一頁
+    var isLoading = false
 
     private val _searchUsersResponse = MutableLiveData<Resource<SearchUsersResponse>>()
     val searchUsersRepository: LiveData<Resource<SearchUsersResponse>>
@@ -19,7 +21,7 @@ class SearchUsersViewModel: BaseViewModel() {
     fun searchUsers(query: String) {
         viewModelScope.launch {
             _searchUsersResponse.value = Resource.Loading
-            _searchUsersResponse.value = repository.searchUsers(query)
+            _searchUsersResponse.value = repository.searchUsers(query, nextPage)
         }
     }
 }
