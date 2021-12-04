@@ -67,6 +67,9 @@ dependencies {
     // 標準轉換器，用以去掉Retrofit使用Multipart上傳參數給Server，String參數會多一對雙引號
     implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
 
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+
     testImplementation 'junit:junit:'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

@@ -4,9 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class SearchUsersRepository: BaseRepository() {
-    suspend fun searchUsers() = safeApiCall {
+    suspend fun searchUsers(query: String) = safeApiCall {
         withContext(Dispatchers.IO) {
-            apiService.searchUsers("qoo", 30, 1)
+            apiService.searchUsers(query, 30, 1)
         }
     }
 }
