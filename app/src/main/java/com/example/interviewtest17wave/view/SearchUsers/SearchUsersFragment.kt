@@ -1,7 +1,10 @@
 package com.example.interviewtest17wave.view.SearchUsers
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.interviewtest17wave.databinding.FragmentSearchUsersBinding
+import com.example.interviewtest17wave.model.network.bean.GithubUser
 import com.example.interviewtest17wave.view.base.handleApiError
 import com.example.mvvmcodebase.model.network.Resource
 import com.example.mvvmcodebase.view.base.BaseFragment
@@ -20,7 +24,11 @@ import com.example.mvvmcodebase.view.base.BaseFragment
  */
 class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUsersBinding>() {
 
-    private val listAdapter by lazy { SearchUserItemAdapter() }
+    private val listAdapter by lazy {
+        SearchUserItemAdapter { githubUser ->
+            go2UserGithubByBrowser(githubUser)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,6 +94,11 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 is Resource.Loading -> activity.showProgressBar(true)
             }
         }
+    }
+
+    private fun go2UserGithubByBrowser(githubUser: GithubUser) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUser.htmlUrl))
+        startActivity(intent)
     }
 
     override fun getViewModel() = SearchUsersViewModel::class.java
