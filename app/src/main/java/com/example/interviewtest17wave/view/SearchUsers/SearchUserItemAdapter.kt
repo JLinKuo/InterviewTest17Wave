@@ -41,5 +41,10 @@ class SearchUserItemAdapter(
 
     fun getUserList() = listUsers
 
+    fun clearList() {
+        listUsers.clear()
+        this.notifyDataSetChanged()
+    }
+
     inner class ViewHolder(val binding: ViewListUserItemBinding): RecyclerView.ViewHolder(binding.root)
 }

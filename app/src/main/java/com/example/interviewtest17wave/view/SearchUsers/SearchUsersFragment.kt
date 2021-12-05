@@ -1,15 +1,16 @@
 package com.example.interviewtest17wave.view.SearchUsers
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -67,18 +68,16 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
     }
 
     private fun setListener() {
-        binding.searchUsers.setOnClickListener {
-            viewModel.isLoading = true
-            viewModel.searchUsers(binding.query.text.toString())
-            hideSoftwareKeyboard()
-        }
-    }
-
-    private fun hideSoftwareKeyboard() {
-        activity.currentFocus?.let { view ->
-            val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            imm?.hideSoftInputFromWindow(view.windowToken, 0)
-        }
+        binding.query.addTextChangedListener(object: TextWatcher{
+            override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
+                listAdapter.clearList()
+                viewModel.isLoading = true
+                viewModel.nextPage = 1
+                viewModel.searchUsers(binding.query.text.toString())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun setObserver() {
@@ -88,10 +87,10 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                     viewModel.isLoading = false
                     viewModel.nextPage += 1
                     listAdapter.updateList(it.value.listItems)
-                    activity.dismissProgressBar()
+                    binding.progressBar.visibility = GONE
                 }
                 is Resource.Failure -> handleApiError(it)
-                is Resource.Loading -> activity.showProgressBar(true)
+                is Resource.Loading -> binding.progressBar.visibility = VISIBLE
             }
         }
     }
