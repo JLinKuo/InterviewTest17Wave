@@ -11,6 +11,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,11 +20,16 @@ import com.example.interviewtest17wave.model.network.bean.GithubUser
 import com.example.interviewtest17wave.view.base.handleApiError
 import com.example.mvvmcodebase.model.network.Resource
 import com.example.mvvmcodebase.view.base.BaseFragment
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass.
  */
 class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUsersBinding>() {
+
+    private var oldJob: Job? = null
+    private var newJob: Job? = null
 
     private val listAdapter by lazy {
         SearchUserItemAdapter { githubUser ->
@@ -70,14 +76,27 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
     private fun setListener() {
         binding.query.addTextChangedListener(object: TextWatcher{
             override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
+                cancelPreviousQuery()
+
                 listAdapter.clearList()
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
-                viewModel.searchUsers(binding.query.text.toString())
+                newJob = lifecycleScope.launch {
+                    viewModel.searchUsers(binding.query.text.toString())
+                }
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun cancelPreviousQuery() {
+        newJob?.let {
+            if(it.isActive) {
+                oldJob = newJob
+                oldJob?.cancel()
+            }
+        }
     }
 
     private fun setObserver() {
@@ -89,7 +108,10 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                     listAdapter.updateList(it.value.listItems)
                     binding.progressBar.visibility = GONE
                 }
-                is Resource.Failure -> handleApiError(it)
+                is Resource.Failure -> {
+                    handleApiError(it)
+                    binding.progressBar.visibility = GONE
+                }
                 is Resource.Loading -> binding.progressBar.visibility = VISIBLE
             }
         }
