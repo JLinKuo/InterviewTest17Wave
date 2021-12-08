@@ -80,6 +80,8 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
 
                 listAdapter.clearList()
 
+                if(string != null && string.isBlank()) return
+
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
                 newJob = lifecycleScope.launch {
