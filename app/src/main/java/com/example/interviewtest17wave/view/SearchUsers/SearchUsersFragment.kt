@@ -83,7 +83,7 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
                 newJob = lifecycleScope.launch {
-                    delay(500)
+                    delay(800)
                     viewModel.searchUsers(binding.query.text.toString())
                 }
             }
