@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.interviewtest17wave.databinding.FragmentSearchUsersBinding
 import com.example.interviewtest17wave.model.network.bean.GithubUser
 import com.example.interviewtest17wave.view.base.handleApiError
+import com.example.interviewtest17wave.view.base.status
 import com.example.mvvmcodebase.model.network.Resource
 import com.example.mvvmcodebase.view.base.BaseFragment
 import kotlinx.coroutines.Job
@@ -28,7 +29,6 @@ import kotlinx.coroutines.launch
  */
 class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUsersBinding>() {
 
-    private var oldJob: Job? = null
     private var newJob: Job? = null
 
     private val listAdapter by lazy {
@@ -92,9 +92,8 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
 
     private fun cancelPreviousQuery() {
         newJob?.let {
-            if(it.isActive) {
-                oldJob = newJob
-                oldJob?.cancel()
+            if(it.isActive || it.isCompleted) {
+                newJob?.cancel()
             }
         }
     }

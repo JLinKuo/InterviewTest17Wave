@@ -6,6 +6,7 @@ import com.example.interviewtest17wave.BuildConfig.ISDEBUG
 import com.example.interviewtest17wave.R
 import com.example.interviewtest17wave.view.main.MainActivity
 import com.example.mvvmcodebase.model.network.Resource
+import kotlinx.coroutines.Job
 import java.io.IOException
 
 fun Fragment.handleApiError(
@@ -34,4 +35,12 @@ fun Fragment.handleApiError(
             }
         }
     }
+}
+
+fun Job.status(): String = when {
+    isActive -> "Active/Completing"
+    isCompleted && isCancelled -> "Cancelled"
+    isCancelled -> "Cancelling"
+    isCompleted -> "Completed"
+    else -> "New"
 }
