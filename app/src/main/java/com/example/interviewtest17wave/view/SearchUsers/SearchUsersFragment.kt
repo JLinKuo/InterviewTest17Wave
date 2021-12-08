@@ -18,10 +18,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.interviewtest17wave.databinding.FragmentSearchUsersBinding
 import com.example.interviewtest17wave.model.network.bean.GithubUser
 import com.example.interviewtest17wave.view.base.handleApiError
-import com.example.interviewtest17wave.view.base.status
 import com.example.mvvmcodebase.model.network.Resource
 import com.example.mvvmcodebase.view.base.BaseFragment
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -79,9 +79,11 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 cancelPreviousQuery()
 
                 listAdapter.clearList()
+
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
                 newJob = lifecycleScope.launch {
+                    delay(500)
                     viewModel.searchUsers(binding.query.text.toString())
                 }
             }
