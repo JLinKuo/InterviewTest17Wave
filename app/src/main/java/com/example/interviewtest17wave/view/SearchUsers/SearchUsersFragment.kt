@@ -80,8 +80,12 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
 
                 listAdapter.clearList()
 
-                if(string != null && string.isBlank()) return
+                if(string != null && string.isBlank()) {
+                    binding.message.visibility = VISIBLE
+                    return
+                }
 
+                binding.message.visibility = GONE
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
                 newJob = lifecycleScope.launch {
@@ -108,7 +112,12 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 is Resource.Success -> {
                     viewModel.isLoading = false
                     viewModel.nextPage += 1
-                    listAdapter.updateList(it.value.listItems)
+
+                    if(it.value.listItems.isNotEmpty()) {
+                        listAdapter.updateList(it.value.listItems)
+                    } else {
+                        binding.message.visibility = VISIBLE
+                    }
                     binding.progressBar.visibility = GONE
                 }
                 is Resource.Failure -> {
