@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.interviewtest17wave.BuildConfig.API_BASE_URL
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -18,6 +19,13 @@ class RemoteDataSource {
     private val isShowRetrofitLogs = true
     private val defaultTimeout = 30L
 
+    private val httpHeader = Interceptor { chain ->
+        val builder = chain.request().newBuilder()
+        builder.header("Authorization", "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")
+               .header("Accept", "application/vnd.github.v3.text-match+json")
+        return@Interceptor chain.proceed(builder.build())
+    }
+
     private val logging = HttpLoggingInterceptor { message -> Log.d(TAG, message) }
 
     private val okHttpClient: OkHttpClient by lazy {
@@ -31,6 +39,7 @@ class RemoteDataSource {
             .connectTimeout(defaultTimeout, TimeUnit.SECONDS)
             .readTimeout(defaultTimeout, TimeUnit.SECONDS)
             .writeTimeout(defaultTimeout, TimeUnit.SECONDS)
+            .addInterceptor(httpHeader)
             .addInterceptor(logging)
             .build()
     }
