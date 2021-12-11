@@ -10,7 +10,8 @@ import kotlinx.coroutines.Job
 import java.io.IOException
 
 fun Fragment.handleApiError(
-    failure: Resource.Failure
+    failure: Resource.Failure,
+    updateView: (errorCode: Int) -> Unit
 ) {
     val mainActivity = (activity as MainActivity)
     mainActivity.dismissProgressBar()
@@ -19,6 +20,10 @@ fun Fragment.handleApiError(
         400, 404, 500 -> {
             val msg = String.format(getString(R.string.dialog_error_server_busy), failure.errorCode)
             mainActivity.showOneButtonNoTitleDialog(msg, null)
+        }
+
+        403 -> {
+            updateView.invoke(failure.errorCode)
         }
 
         else -> {

@@ -15,14 +15,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.interviewtest17wave.R
 import com.example.interviewtest17wave.databinding.FragmentSearchUsersBinding
 import com.example.interviewtest17wave.model.network.bean.GithubUser
 import com.example.interviewtest17wave.view.base.handleApiError
 import com.example.mvvmcodebase.model.network.Resource
 import com.example.mvvmcodebase.view.base.BaseFragment
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /**
  * A simple [Fragment] subclass.
@@ -76,6 +75,7 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
     private fun setListener() {
         binding.query.addTextChangedListener(object: TextWatcher{
             override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.message.text = getString(R.string.search_empty)
                 cancelPreviousQuery()
 
                 listAdapter.clearList()
@@ -115,13 +115,21 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
 
                     if(it.value.listItems.isNotEmpty()) {
                         listAdapter.updateList(it.value.listItems)
+                    }
+
+                    if(listAdapter.getUserList().size > 0) {
+                        binding.message.visibility = GONE
                     } else {
                         binding.message.visibility = VISIBLE
                     }
+
                     binding.progressBar.visibility = GONE
                 }
                 is Resource.Failure -> {
-                    handleApiError(it)
+                    handleApiError(it) { errorCode ->
+                        updateViewWitHttpError(errorCode)
+                    }
+
                     binding.progressBar.visibility = GONE
                 }
                 is Resource.Loading -> binding.progressBar.visibility = VISIBLE
@@ -132,6 +140,15 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
     private fun go2UserGithubByBrowser(githubUser: GithubUser) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUser.htmlUrl))
         startActivity(intent)
+    }
+
+    private fun updateViewWitHttpError(errorCode: Int) {
+        when(errorCode) {
+            403 -> {
+                binding.message.text = getString(R.string.search_http_error)
+                binding.message.visibility = VISIBLE
+            }
+        }
     }
 
     override fun getViewModel() = SearchUsersViewModel::class.java

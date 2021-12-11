@@ -35,6 +35,7 @@
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:layout_marginTop="16dp"
         android:textColor="@color/gray_5"
         android:textSize="16sp"
