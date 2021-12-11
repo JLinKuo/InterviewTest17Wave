@@ -11,6 +11,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +30,7 @@ import kotlinx.coroutines.*
 class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUsersBinding>() {
 
     private var newJob: Job? = null
+    private var totalItems = 0
 
     private val listAdapter by lazy {
         SearchUserItemAdapter { githubUser ->
@@ -56,11 +58,15 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
 
-                if(!viewModel.isLoading && newState == RecyclerView.SCROLL_STATE_IDLE &&
-                    lastVisibleItemPosition >= listAdapter.getUserList().size - 10) {
+                if(listAdapter.getUserList().size < totalItems ) {
+                    if (!viewModel.isLoading && newState == RecyclerView.SCROLL_STATE_IDLE &&
+                        lastVisibleItemPosition >= listAdapter.getUserList().size - 15) {
 
-                    viewModel.isLoading = true
-                    viewModel.searchUsers(binding.query.text.toString())
+                        viewModel.isLoading = true
+                        viewModel.searchUsers(binding.query.text.toString())
+                    }
+                } else {
+                    Toast.makeText(activity, getString(R.string.search_end), Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -89,7 +95,7 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 viewModel.isLoading = true
                 viewModel.nextPage = 1
                 newJob = lifecycleScope.launch {
-                    delay(800)
+                    delay(300)
                     viewModel.searchUsers(binding.query.text.toString())
                 }
             }
@@ -112,6 +118,8 @@ class SearchUsersFragment : BaseFragment<SearchUsersViewModel, FragmentSearchUse
                 is Resource.Success -> {
                     viewModel.isLoading = false
                     viewModel.nextPage += 1
+
+                    totalItems = it.value.totalCount
 
                     if(it.value.listItems.isNotEmpty()) {
                         listAdapter.updateList(it.value.listItems)
